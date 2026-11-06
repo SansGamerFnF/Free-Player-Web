@@ -8,14 +8,18 @@ borrarla sin tocar nada de `Free Player`.
 
 ```
 Free Player Web/
-├── index.html                     Página completa (una sola página)
+├── index.html                      Página completa (una sola página)
+├── manifest.json                   Datos para instalarla como app (PWA)
 ├── css/
-│   └── style.css                  Estilos, maquetas de móvil y responsive
+│   └── style.css                   Diseño, maquetas de móvil y responsive
 ├── js/
-│   └── main.js                    Menú móvil, animaciones y aviso de descarga
+│   └── main.js                     Menú, apariciones, cifras y aviso de descarga
 └── assets/
-    ├── icon-192.png               Icono de la app
-    └── icon-512.png               Icono / imagen social
+    ├── icon-192.png                Icono de la app
+    ├── icon-512.png                Icono / imagen social
+    └── fonts/
+        ├── manrope-latin.woff2     Tipografía Manrope (subconjunto latino)
+        └── OFL.txt                 Licencia SIL Open Font License
 ```
 
 La APK **no se guarda en esta carpeta**: los botones de descarga apuntan
@@ -32,28 +36,25 @@ todo, pero algunos navegadores bloquean la descarga directa de archivos locales.
 
 ```powershell
 cd "D:\Nueva carpeta\Free Player Web"
-npx serve .
-```
-
-O con Python:
-
-```powershell
 python -m http.server 8080
 ```
 
-Y abre <http://localhost:8080>.
+Y abre <http://localhost:8080>. También vale cualquier servidor estático:
+`npx serve .`, `php -S localhost:8080` o la extensión Live Server de VS Code.
 
 ## Publicarla gratis
 
 Es un sitio 100 % estático, así que no necesita backend ni build:
 
-- **Netlify Drop** — <https://app.netlify.com/drop>: arrastra la carpeta
-  `Free Player Web` y te da una URL al instante.
+- **GitHub Pages** — repositorio
+  [`Free-Player-Web`](https://github.com/SansGamerFnF/Free-Player-Web) con Pages
+  activado en la rama `main`.
+- **Netlify Drop** — <https://app.netlify.com/drop>: arrastra la carpeta y te da
+  una URL al instante.
 - **Cloudflare Pages** — sube la carpeta o conéctala a un repositorio.
-- **GitHub Pages** — sube el contenido a un repositorio y activa Pages.
 - **Vercel** — importa la carpeta como proyecto estático.
 
-> Al no incluir la APK, la web ocupa menos de 100 KB y se puede publicar en
+> Al no incluir la APK, la web ocupa unos 105 KB y se puede publicar en
 > cualquier servicio estático. La descarga la sirve GitHub, así que no hay
 > límite de tamaño que afecte al sitio.
 
@@ -62,18 +63,21 @@ Es un sitio 100 % estático, así que no necesita backend ni build:
 1. Publica la nueva APK en el release del repositorio
    [`Free-Player`](https://github.com/SansGamerFnF/Free-Player/releases)
    (el nombre del archivo adjunto será `Free-Player-X.Y.apk`).
-2. En `index.html`, busca y reemplaza la URL de descarga (hay 4 apariciones):
+2. En `index.html`, busca y reemplaza la URL de descarga (hay **4 apariciones**:
+   menú, portada, sección de descarga y pie):
 
    ```
    https://github.com/SansGamerFnF/Free-Player/releases/download/v0.3-c/Free-Player-0.3-c.apk
    ```
 
-   por la del nuevo release, y actualiza también esta misma URL en el README.
-3. Actualiza los textos visibles de versión:
-   - `Beta 0.3-c · Android` (hero)
+   por la del nuevo release, y actualiza también esta URL en el README.
+3. Actualiza los textos visibles de versión y los datos estructurados:
+   - `Beta 0.3-c · Android 7.0+` (portada)
    - `Descarga Free Player 0.3-c…`
    - `Versión beta 0.3-c · Android 7.0+`
-4. Si cambia el peso, actualiza `15,2 MB` en el botón y en las cifras.
+   - `softwareVersion` del bloque `application/ld+json`
+   - `downloadUrl` del mismo bloque
+4. Si cambia el peso, actualiza `15,2 MB` en los botones y en las cifras.
 
 ## Nota sobre la APK
 
@@ -84,11 +88,18 @@ Studio o con Gradle, subirla al release y apuntar ahí el enlace.
 
 ## Detalles técnicos
 
-- Sin frameworks, sin build, sin cookies ni analítica.
-- Una única fuente externa: **Manrope** desde Google Fonts. Si quieres que la
-  página funcione 100 % sin internet, elimina los `<link>` de Google Fonts en
-  `index.html`; el CSS ya usa la fuente del sistema como respaldo.
-- Las maquetas de móvil están hechas con HTML y CSS (no son capturas). Si
-  prefieres capturas reales, reemplaza cada `.phone` por una `<img>` y ajusta
-  el ancho en `css/style.css`.
-- Respeta `prefers-reduced-motion` y es navegable con teclado.
+- Sin frameworks, sin build, sin cookies ni analítica. Solo HTML, CSS y JS.
+- **Manrope** se sirve desde `assets/fonts/`, con su licencia OFL incluida. No
+  hay peticiones a Google Fonts ni a ningún servicio externo: la web carga
+  entera desde el propio sitio.
+- Las maquetas de móvil están hechas con HTML y CSS (no son capturas). Las
+  animaciones (vinilo, ecualizador, marquesina, tarjetas flotantes, aparición
+  al desplazar) son CSS, con el mínimo JS para activarlas al entrar en pantalla.
+- `manifest.json` permite añadir la web a la pantalla de inicio de Android como
+  app (PWA). No hay service worker, así que la web necesita conexión; la APK
+  sí funciona sin conexión.
+- Responsive probado a 390 px (móvil), 900 px (tableta) y 1440 px (escritorio).
+  En móvil el menú se convierte en panel lateral y las capturas en un carrusel
+  deslizable.
+- Respeta `prefers-reduced-motion`, incluye enlace para saltar al contenido,
+  foco visible y textos alternativos en las imágenes.
